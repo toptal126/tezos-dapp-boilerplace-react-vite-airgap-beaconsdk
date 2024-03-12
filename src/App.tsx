@@ -2,12 +2,12 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { dAppClient } from "./helpers/constants";
-import { BeaconEvent } from "@airgap/beacon-sdk";
 import { useEffect, useState } from "react";
 // import { TEZOS_COLLECT_WALLET } from "./helpers/constants";
 
 function App() {
   const [activeAddress, setActiveAddress] = useState("");
+  const [refreshedAt, setRefreshedAt] = useState(new Date());
   const onConnectWallet = async () => {
     if (activeAddress) alert(activeAddress);
     else {
@@ -20,18 +20,10 @@ function App() {
   useEffect(() => {
     const getActiveAccounts = async () => {
       const _activeAddress = await dAppClient.getActiveAccount();
-      if (_activeAddress?.address) {
-        // If defined, the user is connected to a wallet.
-        // You can now do an operation request, sign request, or send another permission request to switch wallet
-        // console.log("Already connected:", _activeAddress?.address);
-
-        // You probably want to show the address in your UI somewhere.
-        setActiveAddress(_activeAddress?.address);
-        // console.log(activeAddress);
-      }
+      setActiveAddress(_activeAddress?.address || "");
     };
     getActiveAccounts();
-  }, []);
+  }, [refreshedAt]);
   return (
     <>
       <div>
@@ -51,6 +43,7 @@ function App() {
         <button
           onClick={async () => {
             await dAppClient.disconnect();
+            setRefreshedAt(new Date());
           }}
         >
           Disconnect Wallet
